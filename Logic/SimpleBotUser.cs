@@ -1,15 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using SimpleBot.Model;
+using SimpleBot.Repository;
+using SimpleBot.Repository.Interface;
 
 namespace SimpleBot.Logic
 {
     public class SimpleBotUser
     {
-        public string Reply(SimpleMessage message)
+        static IUserProfileRepository _userProfile;
+
+        static SimpleBotUser()
         {
-            return $"{message.User} disse '{message.Text}";
+            _userProfile = new UserProfileMongoRepository("mongodb://127.0.0.1");
+        }
+
+        public static string Reply(Message message)
+        {
+            var id = message.Id;
+
+            var profile = _userProfile.GetProfile(id);
+
+            profile.Visitas += 1;
+
+            _userProfile.SetProfile(id, profile);
+
+            return $"{message.User} disse '{message.Text} e mandou {profile.Visitas} mensagens'";
         }
 
     }
